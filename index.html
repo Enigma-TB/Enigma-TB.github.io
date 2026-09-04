@@ -3,35 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enigma-TB's Website</title>
+    <title>Link Sharing App</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
         }
         .container {
-            text-align: center;
-            color: white;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
         }
         h1 {
-            font-size: 3em;
-            margin: 0;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
         }
-        p {
-            font-size: 1.2em;
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .success-message {
+            margin-top: 20px;
+            padding: 15px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 5px;
+            display: none;
+            text-align: center;
+        }
+        .success-message.show {
+            display: block;
+        }
+        .link-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            display: none;
+            word-break: break-all;
+        }
+        .link-display.show {
+            display: block;
+        }
+        .copy-btn {
             margin-top: 10px;
+            padding: 8px;
+            background: #667eea;
+            width: auto;
+            display: inline-block;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome! 👋</h1>
-        <p>This is Enigma-TB's website</p>
+        <h1>🔗 Link Sharing</h1>
+        <p class="subtitle">Share links with anyone</p>
+        
+        <form id="linkForm">
+            <div class="form-group">
+                <label for="linkInput">Link to Share:</label>
+                <input type="text" id="linkInput" placeholder="https://example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="recipientEmail">Recipient Email:</label>
+                <input type="email" id="recipientEmail" placeholder="someone@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Message (Optional):</label>
+                <textarea id="message" placeholder="Add a message..."></textarea>
+            </div>
+            
+            <button type="submit">Send Link</button>
+        </form>
+        
+        <div class="success-message" id="successMessage">
+            ✅ Link shared successfully!
+        </div>
+        
+        <div class="link-display" id="linkDisplay">
+            <strong>Shareable Link:</strong><br>
+            <span id="shareableLink"></span>
+            <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Link</button>
+        </div>
     </div>
+
+    <script>
+        document.getElementById('linkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const link = document.getElementById('linkInput').value;
+            const email = document.getElementById('recipientEmail').value;
+            const message = document.getElementById('message').value;
+            
+            // Create a shareable link
+            const shareableLink = `${window.location.origin}?link=${encodeURIComponent(link)}&to=${encodeURIComponent(email)}${message ? '&msg=' + encodeURIComponent(message) : ''}`;
+            
+            // Display the shareable link
+            document.getElementById('shareableLink').textContent = shareableLink;
+            document.getElementById('linkDisplay').classList.add('show');
+            
+            // Show success message
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('show');
+            
+            // In a real app, you would send this via email or API
+            console.log('Link to share:', shareableLink);
+            console.log('Recipient:', email);
+            console.log('Message:', message);
+            
+            // Reset form
+            setTimeout(() => {
+                document.getElementById('linkForm').reset();
+                successMsg.classList.remove('show');
+            }, 3000);
+        });
+        
+        function copyToClipboard() {
+            const link = document.getElementById('shareableLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Link copied to clipboard!');
+            });
+        }
+        
+        // Check if link was shared via URL
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('link')) {
+            document.getElementById('linkInput').value = params.get('link');
+            if (params.has('to')) {
+                document.getElementById('recipientEmail').value = params.get('to');
+            }
+            if (params.has('msg')) {
+                document.getElementById('message').value = params.get('msg');
+            }
+        }
+    </script>
 </body>
 </html>
